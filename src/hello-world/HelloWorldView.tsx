@@ -37,15 +37,17 @@ const HelloWorldView = ({route, navigation}) => {
   /// Return a function to .removeListeners() When view is removed.
   React.useEffect(() => {
     initBackgroundFetch();  // <-- optional
-    initBackgroundGeolocation();
-    registerTransistorAuthorizationListener(navigation);
-    return () => {
-      // Remove BackgroundGeolocation event-subscribers when the View is removed or refreshed
-      // during development live-reload.  Without this, event-listeners will accumulate with
-      // each refresh during live-reload.
-      unsubscribe();
-    }
+    onInitListeners();
   }, []);
+
+  const onInitListeners = () => {
+    console.log('*** onInitListeners');
+    BackgroundGeolocation.removeAllListeners(() => {
+      console.log('*** Attempted to remove all previous listeners');
+      initBackgroundGeolocation();
+      registerTransistorAuthorizationListener(navigation);
+    });
+  }
 
   /// Add a toggle <Switch> to top-right toolbar.
   React.useLayoutEffect(() => {
@@ -214,6 +216,14 @@ const HelloWorldView = ({route, navigation}) => {
             onPress={onClickGetCurrentPosition}
             containerStyle={{width: 60}}
             icon={<Icon name='navigate-sharp' type='ionicon' /> }
+          />
+        </View>
+        <View style={{justifyContent:'center'}}>
+          <Button
+            type="clear"
+            onPress={onInitListeners}
+            containerStyle={{width: 60}}
+            icon={<Icon name='add-circle-sharp' type='ionicon' /> }
           />
         </View>
         <View style={{flex: 1}}></View>
